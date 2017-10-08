@@ -45,6 +45,7 @@ int main()
 {
     int sockfd;
     char *message = NULL;
+    char response[512];
     size_t msg_size;
     struct sockaddr_in server;
 
@@ -61,25 +62,26 @@ int main()
     }
 
     // Get a line of input from the user.
-    fprintf(stdout, "Type message: ");
+    //fprintf(stdout, "Type message: ");
+    message = "POST foo.com/path HTTP/1.1 \n test:test \n \n This is the body \n" ;
+
     fflush(stdout);
-    size_t msg_len = getline(&message, &msg_size, stdin);
+   // size_t msg_len = getline(&message, &msg_size, stdin);
 
     // do not send the newline.
-    send(sockfd, message, msg_len - 1, 0);
-
+    send(sockfd, message, strlen(message), 0);
+    printf("Before receive \n");
     // Receive reply.
-    ssize_t n = recv(sockfd, message, msg_len - 1, 0);
+    ssize_t n = recv(sockfd,response, 512, 0);
 
     // Zero terminate the message, otherwise fprintf may access
     // memory outside of the string.
-    message[n] = '\0';
-    fprintf(stdout, "Received:\n%s\n", message);
+    fprintf(stdout, "Received:\n%s\n", response);
     fflush(stdout);
 
     // Shutdown connection.
     shutdown(sockfd, SHUT_RDWR);
     close(sockfd);
-    free(message);
+    //free(message);
     exit(EXIT_SUCCESS);
 }
